@@ -1,0 +1,58 @@
+﻿@page "/alumnos/{Id:int}/{Nombre}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigator;
+@inject IRepositorioAlumnos _repositorio;
+
+<PageTitle>@Nombre</PageTitle>
+
+@if (_alumno == null)
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-center align-items-center" style="height:90vh">
+        <div class="card shadow-lg rounded-4 p-4" style="max-width: 600px; width: 100%; background: linear-gradient(135deg, #34affa, #23c6fd); color: white;">
+            <div class="d-flex align-items-center mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="white" class="bi bi-person-fill me-3" viewBox="0 0 16 16">
+                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+                </svg>
+                <h2 class="m-0">@_alumno.Nombre</h2>
+            </div>
+            <hr class="border-light" />
+            <div class="mb-3">
+                <p><strong>Grado:</strong> @_alumno.Grado</p>
+                <p><strong>Fecha de Nacimiento:</strong> @_alumno.FechaN.ToString("dd/MM/yyyy")</p>
+                <p><strong>Sexo:</strong> @_alumno.Sexo</p>
+                <p><strong>Correo Electrónico:</strong> @_alumno.Correo</p>
+                <p><strong>Teléfono:</strong> @_alumno.Telefono</p>
+                <p><strong>Dirección:</strong> @_alumno.Direccion</p>
+            </div>
+            <div class="text-end">
+                <button class="btn btn-light text-primary fw-bold" @onclick="Volver">Volver</button>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    [Parameter]
+    public string Nombre { get; set; }
+
+    private Alumnos? _alumno;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _alumno = await _repositorio.Get(Id);
+    }
+
+    private void Volver()
+    {
+        _navigator.NavigateTo("/alumnos");
+    }
+}

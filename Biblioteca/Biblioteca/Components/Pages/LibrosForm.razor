@@ -1,0 +1,126 @@
+﻿@page "/libros/nueva"
+@page "/libros/editar/{Id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigator;
+@inject IRepositorioLibros _repositorio;
+<h2>@_mensaje Libro</h2>
+
+<div @onclick="RellenarAleatorio" style="position: absolute; right: 70px; top: 70px; background: #fce010; display: flex; padding: 5px; border-radius: 5px; cursor: pointer" title="Libro aleatorio">
+    <div style="display: flex; margin: auto">Prueba</div>
+    <div style="width: 25px; height: 25px; border-radius: 50%; display: flex; box-shadow: 0 0 5px rgba(0,0,0); transform: translateX(15px); background: #fce010;">
+        <svg style="display:flex; margin: auto" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel-fill" viewBox="0 0 16 16">
+            <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1M5.884 6.68 8 9.219l2.116-2.54a.5.5 0 1 1 .768.641L8.651 10l2.233 2.68a.5.5 0 0 1-.768.64L8 10.781l-2.116 2.54a.5.5 0 0 1-.768-.641L7.349 10 5.116 7.32a.5.5 0 1 1 .768-.64" />
+        </svg>
+    </div>
+</div>
+
+<EditForm Model="_libro" FormName="frmLibros" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="row mb-3">
+        <label for="txtTitulo" class="col-2 col-form-label">Titulo</label>
+        <div class="col-10">
+            <InputText id="txtTitulo" class="form-control" @bind-Value="_libro.Titulo" />
+            <ValidationMessage For="()=>_libro.Titulo" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtAutor" class="col-2 col-form-label">Autor</label>
+        <div class="col-10">
+            <InputText id="txtAutor" class="form-control" @bind-Value="_libro.Autor" />
+            <ValidationMessage For="()=>_libro.Autor" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtEditorial" class="col-2 col-form-label">Editorial</label>
+        <div class="col-10">
+            <InputText id="txtEditorial" class="form-control" @bind-Value="_libro.Editorial" />
+            <ValidationMessage For="()=>_libro.Editorial" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtCategoria" class="col-2 col-form-label">Categoria</label>
+        <div class="col-10">
+            <InputText id="txtCategoria" class="form-control" @bind-Value="_libro.Categoria" />
+            <ValidationMessage For="()=>_libro.Categoria" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtFechaP" class="col-2 col-form-label">Fecha de Publicación</label>
+        <div class="col-10">
+            <InputDate id="txtFechaP" class="form-control" @bind-Value="_libro.FechaP"/>
+            <ValidationMessage For="()=>_libro.FechaP" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtDescripcion" class="col-2 col-form-label">Descripción</label>
+        <div class="col-10">
+            <InputText id="txtDescripcion" class="form-control" @bind-Value="_libro.Descripcion" />
+            <ValidationMessage For="()=>_libro.Descripcion" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button class="btn btn-danger ms-3" @onclick="Cancelar" @onclick:preventDefault>Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private string _mensaje = "";
+    private Libros? _libro = new();
+    private List<Libros> _librosEjemplo = new()
+    {
+        new Libros { Titulo = "El Código Da Vinci", Autor = "Dan Brown", Editorial = "Planeta", Categoria = "Misterio", FechaP = new DateTime(2003, 3, 18), Descripcion = "Un thriller sobre una conspiración religiosa." },
+        new Libros { Titulo = "Cien Años de Soledad", Autor = "Gabriel García Márquez", Editorial = "Sudamericana", Categoria = "Realismo Mágico", FechaP = new DateTime(1967, 5, 30), Descripcion = "La historia de la familia Buendía en Macondo." },
+        new Libros { Titulo = "Sapiens: De animales a dioses", Autor = "Yuval Noah Harari", Editorial = "Debate", Categoria = "Historia", FechaP = new DateTime(2011, 6, 4), Descripcion = "Un recorrido por la historia de la humanidad." },
+        new Libros { Titulo = "1984", Autor = "George Orwell", Editorial = "Secker & Warburg", Categoria = "Distopía", FechaP = new DateTime(1949, 6, 8), Descripcion = "Una novela sobre un futuro totalitario." },
+        new Libros { Titulo = "Harry Potter y la Piedra Filosofal", Autor = "J.K. Rowling", Editorial = "Salamandra", Categoria = "Fantasía", FechaP = new DateTime(1997, 6, 26), Descripcion = "El inicio de la saga del joven mago." },
+        new Libros { Titulo = "El Hobbit", Autor = "J.R.R. Tolkien", Editorial = "Allen & Unwin", Categoria = "Aventura", FechaP = new DateTime(1937, 9, 21), Descripcion = "Las aventuras de Bilbo Bolsón en la Tierra Media." }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            _libro = await _repositorio.Get(Id);
+            _mensaje = "Modificar";
+        }
+        else
+        {
+            _mensaje = "Nuevo";
+        }
+    }
+
+    private async void Guardar()
+    {
+        if (Id > 0)
+        {
+            await _repositorio.Update(Id, _libro!);
+        }
+        else
+        {
+            await _repositorio.Add(_libro!);
+        }
+        Cancelar();
+    }
+
+    private void Cancelar()
+    {
+        _navigator.NavigateTo("/libros");
+    }
+    private void RellenarAleatorio()
+    {
+        var random = new Random();
+        int index = random.Next(_librosEjemplo.Count);
+        var aleatorio = _librosEjemplo[index];
+
+        _libro = new Libros
+            {
+                Titulo = aleatorio.Titulo,
+                Autor = aleatorio.Autor,
+                Editorial = aleatorio.Editorial,
+                Categoria = aleatorio.Categoria,
+                FechaP = aleatorio.FechaP,
+                Descripcion = aleatorio.Descripcion,
+            };
+    }
+}

@@ -1,0 +1,141 @@
+﻿@page "/alumnos/nueva"
+@page "/alumnos/editar/{Id:int}"
+@rendermode InteractiveServer
+@inject NavigationManager _navigator;
+@inject IRepositorioAlumnos _repositorio;
+<h2>@_mensaje Alumno</h2>
+
+<div @onclick="RellenarAleatorio" style="position: absolute; right: 70px; top: 70px; background: #fce010; display: flex; padding: 5px; border-radius: 5px; cursor: pointer" title="Alumno aleatorio">
+    <div style="display: flex; margin: auto">Prueba</div>
+    <div style="width: 25px; height: 25px; border-radius: 50%; display: flex; box-shadow: 0 0 5px rgba(0,0,0); transform: translateX(15px); background: #fce010;">
+        <svg style="display:flex; margin: auto" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel-fill" viewBox="0 0 16 16">
+            <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1M5.884 6.68 8 9.219l2.116-2.54a.5.5 0 1 1 .768.641L8.651 10l2.233 2.68a.5.5 0 0 1-.768.64L8 10.781l-2.116 2.54a.5.5 0 0 1-.768-.641L7.349 10 5.116 7.32a.5.5 0 1 1 .768-.64" />
+        </svg>
+    </div>
+</div>
+
+<EditForm Model="_alumno" FormName="frmAlumnos" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="row mb-3">
+        <label for="txtNombre" class="col-2 col-form-label">Nombre</label>
+        <div class="col-10">
+            <InputText id="txtNombre" class="form-control" @bind-Value="_alumno.Nombre" />
+            <ValidationMessage For="()=>_alumno.Nombre" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtGrado" class="col-2 col-form-label">Grado</label>
+        <div class="col-10">
+            <InputText id="txtGrado" class="form-control" @bind-Value="_alumno.Grado" />
+            <ValidationMessage For="()=>_alumno.Grado" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtFechaN" class="col-2 col-form-label">Fecha de Nacimiento</label>
+        <div class="col-10">
+            <InputDate id="txtFechaN" class="form-control" @bind-Value="_alumno.FechaN"
+                       Max="@DateTime.Now.AddYears(-18).Date" />
+            <ValidationMessage For="()=>_alumno.FechaN" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtSexo" class="col-2 col-form-label">Sexo</label>
+        <div class="col-10">
+            <InputSelect id="txtSexo" class="form-control" @bind-Value="_alumno.Sexo">
+                <option value="">Seleccione un libro</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+                <option value="Otro">Otro</option>
+            </InputSelect>
+            <ValidationMessage For="()=>_alumno.Sexo" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtCorreo" class="col-2 col-form-label">Correo</label>
+        <div class="col-10">
+            <InputText id="txtCorreo" class="form-control" @bind-Value="_alumno.Correo" />
+            <ValidationMessage For="()=>_alumno.Correo" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtTelefono" class="col-2 col-form-label">Telefono</label>
+        <div class="col-10">
+            <InputText id="txtTelefono" class="form-control" @bind-Value="_alumno.Telefono" />
+            <ValidationMessage For="()=>_alumno.Telefono" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="txtDireccion" class="col-2 col-form-label">Direccion</label>
+        <div class="col-10">
+            <InputText id="txtDireccion" class="form-control" @bind-Value="_alumno.Direccion" />
+            <ValidationMessage For="()=>_alumno.Direccion" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button class="btn btn-danger ms-3" @onclick="Cancelar" @onclick:preventDefault>Cancelar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private string _mensaje = "";
+    private Alumnos? _alumno = new();
+    private List<Alumnos> _alumnosEjemplo = new()
+    {
+        new Alumnos { Nombre = "Carlos López", Grado = "3A", FechaN = new DateTime(2005, 5, 10), Sexo = "Masculino", Correo = "clopez@ucol.mx", Telefono = "3122283204", Direccion = "Av. Reforma 123" },
+        new Alumnos { Nombre = "Ana Pérez", Grado = "2B", FechaN = new DateTime(2006, 8, 22), Sexo = "Femenino", Correo = "aperez@ucol.mx", Telefono = "3123125802", Direccion = "Calle Hidalgo 456" },
+        new Alumnos { Nombre = "Luis Ramírez", Grado = "1C", FechaN = new DateTime(2007, 2, 14), Sexo = "Masculino", Correo = "lramirez@ucol.mx", Telefono = "3123193568", Direccion = "Insurgentes Sur 789" },
+        new Alumnos { Nombre = "Valeria Martínez", Grado = "4A", FechaN = new DateTime(2004, 11, 3), Sexo = "Femenino", Correo = "vmartinez@ucol.mx", Telefono = "3121234598", Direccion = "Juárez 321" },
+        new Alumnos { Nombre = "Diego Sánchez", Grado = "5B", FechaN = new DateTime(2003, 7, 30), Sexo = "Masculino", Correo = "dsanchez@ucol.mx", Telefono = "3125698234", Direccion = "Madero 654" },
+        new Alumnos { Nombre = "Omar Diaz", Grado = "4H", FechaN = new DateTime(2005, 9, 28), Sexo = "Masculino", Correo = "odiaz7@ucol.mx", Telefono = "3122284399", Direccion = "Antonio Caso 317" }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            _alumno = await _repositorio.Get(Id);
+            _mensaje = "Modificar";
+        }
+        else
+        {
+            _mensaje = "Nuevo";
+            _alumno.FechaN = DateTime.Now.AddYears(-18).Date;
+        }
+    }
+
+    private async void Guardar()
+    {
+        if (Id > 0)
+        {
+            await _repositorio.Update(Id, _alumno!);
+        }
+        else
+        {
+            await _repositorio.Add(_alumno!);
+        }
+        Cancelar();
+    }
+
+    private void Cancelar()
+    {
+        _navigator.NavigateTo("/alumnos");
+    }
+    private void RellenarAleatorio()
+    {
+        var random = new Random();
+        int index = random.Next(_alumnosEjemplo.Count);
+        var aleatorio = _alumnosEjemplo[index];
+
+        _alumno = new Alumnos
+            {
+                Nombre = aleatorio.Nombre,
+                Grado = aleatorio.Grado,
+                FechaN = aleatorio.FechaN,
+                Sexo = aleatorio.Sexo,
+                Correo = aleatorio.Correo,
+                Telefono = aleatorio.Telefono,
+                Direccion = aleatorio.Direccion
+            };
+    }
+}
